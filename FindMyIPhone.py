@@ -1,8 +1,10 @@
+#!/usr/bin/python
 import RPi.GPIO as GPIO
 import signal
 import sys
 from time import sleep
 from pyicloud import PyiCloudService
+import json
 
 GPIO_LED = 23
 GPIO_SWITCH = 24
@@ -11,20 +13,22 @@ LED_ON = 0
 SWITCH_ON = 0
 SWITCH_OFF = 1
 
-iCloudUsername = sys.argv[1]
-iCloudPassword = sys.argv[2]
+iCloudUsername = None
+iCloudPassword = None
 
 def initGpio():
+    print 'Init GPIOs'
     GPIO.setmode(GPIO.BCM)
     GPIO.setup(GPIO_LED, GPIO.OUT)
     GPIO.setup(GPIO_SWITCH, GPIO.IN, pull_up_down = GPIO.PUD_UP)
     GPIO.output(GPIO_LED, LED_OFF)
 
 def iCloudPlaySound():
-    api = PyiCloudService(iCloudUsername, iCloudPassword)
-    print api.iphone.location()
-    print api.iphone.status()
-    #api.iphone.play_sound()
+    if (iCloudUsername is not None) and (iCloudPassword is not None):
+        api = PyiCloudService(iCloudUsername, iCloudPassword)
+        #print api.iphone.location()
+        #print api.iphone.status()
+        api.iphone.play_sound()
 
 def setLedOn():
     GPIO.output(GPIO_LED, LED_ON)
@@ -38,7 +42,17 @@ def isSwitchPressed():
 def sigterm_handler(_signo, _stack_frame):
     sys.exit(0)
 
+def loadUsernamePassword(filename):
+    global iCloudUsername
+    global iCloudPassword
+    print 'Loading %s' % filename
+    with open(filename, 'r') as f:
+        data = json.load(f)
+        iCloudUsername = str(data['username'])
+        iCloudPassword = str(data['password'])
+
 def main():
+    loadUsernamePassword(sys.argv[1])
     initGpio()
     signal.signal(signal.SIGTERM, sigterm_handler)
     print 'FindMyIPhone started'
