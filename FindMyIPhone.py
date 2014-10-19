@@ -5,6 +5,7 @@ import sys
 from time import sleep
 from pyicloud import PyiCloudService
 import json
+import daemon
 
 GPIO_LED = 23
 GPIO_SWITCH = 24
@@ -63,8 +64,8 @@ def initGpio():
     GPIO.add_event_detect(GPIO_SWITCH, GPIO.FALLING, callback=buttonEventHandler, bouncetime=200)
 
 
-def main():
-    loadUsernamePassword(sys.argv[1])
+def main(filename):
+    loadUsernamePassword(filename)
     initGpio()
     signal.signal(signal.SIGTERM, sigterm_handler)
     print 'FindMyIPhone started'
@@ -88,6 +89,10 @@ def main():
         GPIO.cleanup()
         print 'Goodbye'
 
+def daemon_run():
+    with daemon.DaemonContext():
+        main(sys.argv[1])
 
 if __name__ == '__main__':
-    main()
+    daemon_run()
+
