@@ -16,13 +16,6 @@ SWITCH_OFF = 1
 iCloudUsername = None
 iCloudPassword = None
 
-def initGpio():
-    print 'Init GPIOs'
-    GPIO.setmode(GPIO.BCM)
-    GPIO.setup(GPIO_LED, GPIO.OUT)
-    GPIO.setup(GPIO_SWITCH, GPIO.IN, pull_up_down = GPIO.PUD_UP)
-    GPIO.output(GPIO_LED, LED_OFF)
-
 def iCloudPlaySound():
     if (iCloudUsername is not None) and (iCloudPassword is not None):
         api = PyiCloudService(iCloudUsername, iCloudPassword)
@@ -51,6 +44,25 @@ def loadUsernamePassword(filename):
         iCloudUsername = str(data['username'])
         iCloudPassword = str(data['password'])
 
+def buttonEventHandler(pin):
+    print 'Button pressed'
+    setLedOn()
+    iCloudPlaySound()
+    setLedOff()
+    sleep(0.25)
+    setLedOn()
+    sleep(1)
+    setLedOff()
+
+def initGpio():
+    print 'Init GPIOs'
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(GPIO_LED, GPIO.OUT)
+    GPIO.setup(GPIO_SWITCH, GPIO.IN, pull_up_down = GPIO.PUD_UP)
+    GPIO.output(GPIO_LED, LED_OFF)
+    GPIO.add_event_detect(GPIO_SWITCH, GPIO.FALLING, callback=buttonEventHandler, bouncetime=200)
+
+
 def main():
     loadUsernamePassword(sys.argv[1])
     initGpio()
@@ -58,18 +70,10 @@ def main():
     print 'FindMyIPhone started'
     try:
         while True:
-            if isSwitchPressed():
-                sleep(0.1)
-                if isSwitchPressed():
-                    print 'Button pressed'
-                    setLedOn()
-                    iCloudPlaySound()
-                    setLedOff()
-                    sleep(0.25)
-                    setLedOn()
-                    sleep(1)
-                    setLedOff()
-            sleep(0.1)
+           setLedOn();
+           sleep(0.01)
+           setLedOff();
+           sleep(5)
     except KeyboardInterrupt:
         print
         print 'KeyboardInterrupt received. Exiting...'
