@@ -33,7 +33,7 @@ You can also set it to launch during system boot by creating an init script at /
         nice -n1 /home/pi/FindMyIPhone/FindMyIPhone.py /home/pi/FindMyIPhone/FindMyIPhone.json
         ;;
     stop)
-        killall btsync
+        killall FindMyIPhone
         ;;
     *)
         echo "Usage: /etc/init.d/FindMyIPhone {start|stop}"
