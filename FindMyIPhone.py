@@ -45,7 +45,7 @@ def iCloudPlaySound():
         api = PyiCloudService(iCloudUsername, iCloudPassword)
         #print api.iphone.location()
         #print api.iphone.status()
-        api.iphone.play_sound()
+        api.iphone.play_sound("Raspberry Pi Greetings")
 
 def setLedOn():
     GPIO.output(GPIO_LED, LED_ON)
@@ -69,14 +69,16 @@ def loadUsernamePassword(filename):
         iCloudPassword = str(data['password'])
 
 def buttonEventHandler(pin):
-    print 'Button pressed'
-    setLedOn()
-    iCloudPlaySound()
-    setLedOff()
-    sleep(0.25)
-    setLedOn()
-    sleep(1)
-    setLedOff()
+    sleep(0.1)
+    if isSwitchPressed():
+        print 'Button pressed'
+        setLedOn()
+        iCloudPlaySound()
+        setLedOff()
+        sleep(0.25)
+        setLedOn()
+        sleep(1)
+        setLedOff()
 
 def initGpio():
     print 'Init GPIOs'
@@ -84,7 +86,7 @@ def initGpio():
     GPIO.setup(GPIO_LED, GPIO.OUT)
     GPIO.setup(GPIO_SWITCH, GPIO.IN, pull_up_down = GPIO.PUD_UP)
     GPIO.output(GPIO_LED, LED_OFF)
-    GPIO.add_event_detect(GPIO_SWITCH, GPIO.FALLING, callback=buttonEventHandler, bouncetime=200)
+    GPIO.add_event_detect(GPIO_SWITCH, GPIO.FALLING, callback=buttonEventHandler, bouncetime=100)
 
 
 def main(filename):
